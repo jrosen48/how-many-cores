@@ -21,7 +21,7 @@ ui <- fluidPage(
             numericInput("n_iterations_desired",
                          "No. of Samples Desired",
                          min = 1,
-                         max = 2000, 
+                         max = 10000, 
                          value = 2000),
             # numericInput("n_cores",
             #              "Maximum No. of Cores",
@@ -31,8 +31,10 @@ ui <- fluidPage(
             numericInput("warm_up",
                          "No. of Warm-up Iterations Per Chain",
                          min = 1,
-                         max = 1000,
+                         max = 5000,
                          value = 500),
+            checkboxInput("lots_of_cores",
+                          "Lots of cores! (create a plot with from 1 to 1,000 cores, instead of 1 to 100)"),
             actionButton("button", "Run")
         ),
         
@@ -43,10 +45,12 @@ ui <- fluidPage(
             numericInput("select_n_cores",
                          "Selected No. of Cores",
                          min = 1,
-                         max = 250, 
+                         max = 1000, 
                          value = NULL),
             actionButton("button1", "Run"),
-            textOutput("print")
+            verbatimTextOutput("print"),
+            p(),
+            tags$a(href="https://github.com/jrosen48/how-many-cores", "Source (GitHub)")
         )
     )
 )
@@ -60,23 +64,29 @@ server <- function(input, output) {
         warm_up = input$warm_up
         n_iterations_desired = input$n_iterations_desired
         
-        d <- tibble(n_cores = 1:100,
+        if(input$lots_of_cores) {
+            n_cores = 1:1000
+        } else {
+            n_cores = 1:100
+        }
+        
+        d <- tibble(n_cores = n_cores,
                     iterations_per_core = map_dbl(.x = n_cores, f, n_iterations_desired = n_iterations_desired, warm_up = warm_up))
         
         output$plot <- renderPlot( {
             to_plot <- d %>% 
                 mutate(total_processing_needed = n_cores * iterations_per_core) %>% 
                 mutate(n_cores = ifelse(n_cores < 5, n_cores,
-                                        ifelse(n_cores < 40 & (n_cores%%5 == 0 | n_cores == 1), n_cores, 
-                                               ifelse(n_cores%%10 == 0, n_cores, NA)))) 
+                                        ifelse(n_cores < 40 & (n_cores%%5 == 0 | n_cores == 1), n_cores,
+                                               ifelse(n_cores < 100 & n_cores%%10 == 0,n_cores,
+                                                      ifelse(n_cores < 1000 & n_cores%%100 == 0, n_cores, NA)))))
             
             to_plot %>% 
                 ggplot(aes(y = iterations_per_core, x = total_processing_needed, label = n_cores)) +
                 geom_point() +
-                geom_line() +
                 ggrepel::geom_text_repel() +
-                labs(title = "Interations per core by total processing needed",
-                     subtitle = "The points' labels depict the number of cores") +
+                labs(title = "Interations per core by total iterations needed",
+                     subtitle = "The points' labels represent the number of cores") +
                 xlab("Total Iterations Needed (Cost)") +
                 ylab("Iterations Per Core (Time)") +
                 theme_bw()
