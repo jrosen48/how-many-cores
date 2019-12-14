@@ -13,7 +13,6 @@ ui <- fluidPage(
     
     # Application title
     titlePanel("How Many Cores?"),
-    p("This app is designed to be used in the context of Markov Chain Monte Carlo (MCMC) estimation procedures, for which it can be difficult to determine the number of chains and cores to use, even when using distributed computing platforms, because each chain typically requires a warm-up period."),
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
         sidebarPanel(
@@ -33,8 +32,6 @@ ui <- fluidPage(
                          min = 1,
                          max = 5000,
                          value = 500),
-            checkboxInput("lots_of_cores",
-                          "Many cores (create a plot with from 1 to 1,000 cores, instead of 1 to 100)!"),
             actionButton("button", "Create plot"),
             p(),
             p("In this section, enter the number of cores to calculate how many iterations per chains (cores) are needed."),
@@ -50,6 +47,8 @@ ui <- fluidPage(
         # Show a plot of the generated distribution
         mainPanel(
             plotOutput("plot"),
+            checkboxInput("lots_of_cores",
+                          "Many cores (create a plot for from 1 to 1,000 cores)!"),
             p(),
             tags$a(href="https://github.com/jrosen48/how-many-cores", "Source (GitHub)")
         )
