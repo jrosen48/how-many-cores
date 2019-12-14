@@ -34,21 +34,22 @@ ui <- fluidPage(
                          max = 5000,
                          value = 500),
             checkboxInput("lots_of_cores",
-                          "Lots of cores! (create a plot with from 1 to 1,000 cores, instead of 1 to 100)"),
-            actionButton("button", "Run")
+                          "Many cores (create a plot with from 1 to 1,000 cores, instead of 1 to 100)!"),
+            actionButton("button", "Create plot"),
+            p(),
+            p("In this section, enter the number of cores to calculate how many iterations per chains (cores) are needed."),
+            numericInput("select_n_cores",
+                         "Selected No. of Cores",
+                         min = 1,
+                         max = 1000, 
+                         value = 4),
+            htmlOutput("print"),
+            actionButton("button1", "Determine how many iterations per chain are needed")
         ),
         
         # Show a plot of the generated distribution
         mainPanel(
-            p("In this section, select one of the options for the number of cores to calculate how many iterations per chains (cores) are needed."),
             plotOutput("plot"),
-            numericInput("select_n_cores",
-                         "Selected No. of Cores (enter this to determine how many iterations per chain are needed)",
-                         min = 1,
-                         max = 1000, 
-                         value = NULL),
-            actionButton("button1", "Run"),
-            verbatimTextOutput("print"),
             p(),
             tags$a(href="https://github.com/jrosen48/how-many-cores", "Source (GitHub)")
         )
@@ -105,9 +106,9 @@ server <- function(input, output) {
         # d <- tibble(n_cores = n_cores,
         #             iterations_per_core = map_dbl(.x = n_cores, f, n_iterations_desired = n_iterations_desired, warm_up = warm_up))
 
-        output$print <- renderPrint( {
+        output$print <- renderText( {
             o <- f(n_iterations_desired, select_n_cores, warm_up)
-            paste0("Number of iterations per chain: ", ceiling((o / select_n_cores) + warm_up))
+            paste0("Total iterations per chain: ", ceiling((o / select_n_cores) + warm_up))
         })
 
     })
