@@ -13,7 +13,7 @@ ui <- fluidPage(
     
     # Application title
     titlePanel("How Many Cores?"),
-    p("This app is designed to be used in the context of Markov Chain Monte Carlo (MCMC) estimation procedures, for which it can be difficult to determine the number of chains and cores to use, even when using distributed computing platforms, because each chain (and core) typically requires a warm-up period."),
+    p("This app is designed to be used in the context of Markov Chain Monte Carlo (MCMC) estimation procedures, for which it can be difficult to determine the number of chains and cores to use, even when using distributed computing platforms, because each chain typically requires a warm-up period."),
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
         sidebarPanel(
@@ -43,7 +43,7 @@ ui <- fluidPage(
             p("In this section, select one of the options for the number of cores to calculate how many iterations per chains (cores) are needed."),
             plotOutput("plot"),
             numericInput("select_n_cores",
-                         "Selected No. of Cores",
+                         "Selected No. of Cores (enter this to determine how many iterations per chain are needed)",
                          min = 1,
                          max = 1000, 
                          value = NULL),
